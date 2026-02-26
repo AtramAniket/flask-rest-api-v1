@@ -91,3 +91,70 @@ def add_cafe():
 			"status": "Failure", 
 			"message": "Unexpected error", 
 			"error": str(e) }), 400
+
+
+@cafe_blueprint.route('/edit/<int:cafe_id>', methods = ['PATCH'])
+def edit_cafe(cafe_id):
+
+	cafe_to_edit = Cafe.query.get(cafe_id)
+
+	if not cafe_to_edit:
+		return jsonify({
+			"status": 404, 
+			"message": f"No cafe found for id {cafe_id}",}), 404
+
+	incoming_params = request.json or {}
+
+	valid_columns = Cafe.get_model_columns(Cafe)
+
+	# avoind primary key from being edited
+	valid_columns.discard("id")
+
+	try:
+		
+		for key, value in incoming_params.items():
+			setattr(cafe_to_edit, key, value)
+		
+		db.session.commit()
+		
+		return jsonify({
+			"status": "Success", 
+			"message": "Data updated successfully", }), 200
+	
+	except SQLAlchemyError as e:
+		
+		db.session.rollback()
+		
+		return jsonify({
+			"status": "Failure",
+			"message": "Database eror", 
+			"error": str(e) }), 400
+
+
+@cafe_blueprint.route('/delete/<int:cafe_id>', methods = ['DELETE'])
+def delete_cafe(cafe_id):
+
+	cafe_to_delete = Cafe.query.get(cafe_id)
+
+	if not cafe_to_delete:
+		return jsonify({
+			"status": 404, 
+			"message": f"No cafe found for id {cafe_id}",}), 404
+
+	try:
+		
+		db.session.delete(cafe_to_delete)
+		db.session.commit()
+		
+		return jsonify({
+			"status": "Success", 
+			"message": "Cafe deleted successfully", }), 200
+	
+	except SQLAlchemyError as e:
+		
+		db.session.rollback()
+		
+		return jsonify({
+			"status": "Failure",
+			"message": "Database eror", 
+			"error": str(e) }), 400
