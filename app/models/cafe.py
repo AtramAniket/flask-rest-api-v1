@@ -27,4 +27,8 @@ class Cafe(db.Model):
 	coffee_price: Mapped[str] = mapped_column(String, nullable=False)
 
 	def __repr__(self):
-		return f"<Cafe {self.title}>"
+		return f"<Cafe {self.name}>"
+
+
+	def to_dict(self):
+		return {column.name: getattr(self, column.name) for column in self.__table__.columns}
