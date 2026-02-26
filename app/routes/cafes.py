@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify
 
 cafe_blueprint = Blueprint('Cafes', __name__)
 
-@cafe_blueprint.route('/', methods = ['GET'])
+@cafe_blueprint.route('/all', methods = ['GET'])
 def home():
 	all_cafes = db.session.scalars(db.select(Cafe).order_by(Cafe.id)).all() 
 	return jsonify({
